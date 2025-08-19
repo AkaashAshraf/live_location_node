@@ -1,39 +1,34 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const http = require('http');
-const socketIo = require('socket.io');
-
-const locationRoutes = require('./routes/locationRoutes');
-const { initSocket } = require('./services/socketService');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Test route
-app.get('/', (req, res) => {
-  res.send('🚀 Live Location Server is running!');
-});
+// Import routes
+const locationRoutes = require('./routes/locationRoutes');
 
-// Routes
+// Use routes
 app.use('/api/locations', locationRoutes);
 
-// Initialize Socket Service
-initSocket(io);
+// Default route
+app.get('/', (req, res) => {
+  res.send('🚀 Server is running...');
+});
 
-const PORT = process.env.PORT || 3000;
+// Connect to MongoDB
+mongoose.connect('mongodb://127.0.0.1:27017/locationdb', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('✅ MongoDB connected'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
-// 👇 Important: bind to 0.0.0.0 so it's accessible externally
-server.listen(PORT, "0.0.0.0", () => {
+// Start server
+const PORT = 3000;
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });
