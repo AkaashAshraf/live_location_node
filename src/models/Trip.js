@@ -1,20 +1,10 @@
-const mongoose = require("mongoose");
-
-const locationSchema = new mongoose.Schema({
-  lat: Number,
-  long: Number,
-  timestamp: Date
-});
+const mongoose = require('mongoose');
 
 const tripSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
-  date: { type: Date, required: true },
-  started_at: { type: Date, default:null },
-  ended_at: { type: Date, default: null },
-  locations: [locationSchema]
-});
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date },
+  status: { type: String, enum: ['ongoing', 'completed', 'cancelled'], default: 'ongoing' },
+}, { timestamps: true });
 
-// Create a compound index on userId and date
-tripSchema.index({ userId: 1, date: 1 });
-
-module.exports = mongoose.model("Trip", tripSchema);
+module.exports = mongoose.model('Trip', tripSchema);

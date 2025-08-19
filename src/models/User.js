@@ -1,12 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
-  name: String,
-  userId: { type: String, unique: true },
-  status: { type: String, enum: ["online", "offline"], default: "offline" },
-  lat: Number,
-  long: Number,
-  lastUpdated: { type: Date, default: Date.now }
-});
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  phone: { type: String, required: true, unique: true },
+  email: { type: String },
+  status: { type: String, enum: ['online', 'offline'], default: 'offline' },
+}, { timestamps: true });
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model('User', userSchema);

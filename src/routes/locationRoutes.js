@@ -1,14 +1,10 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const locationController = require("../controllers/locationController");
+const locationController = require('../controllers/locationController');
 
-// Existing routes
-router.get("/users/all", locationController.getAllUsers);
-router.get("/users/status", locationController.getUsersWithStatus); // ✅ NEW GET route
-router.get("/:userId/:date", locationController.getTripsByDate);
-router.post("/", locationController.addLocation);
-
-// New route for status + location update
-router.post("/update-status", locationController.updateUserStatus);
+router.get('/users', locationController.getUsers);
+router.get('/trip/:userId/:date', locationController.getTripByUserAndDate);
+router.post('/update', locationController.updateLocation);
+router.get('/status', locationController.getUserLiveStatus);
 
 module.exports = router;

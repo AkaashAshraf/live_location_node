@@ -1,25 +1,18 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-
-const connectDB = require("./config/db");
-const locationRoutes = require("./routes/locationRoutes");
-
-dotenv.config();
-connectDB();
-
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const locationRoutes = require('./routes/locationRoutes');
 
 const app = express();
-app.use(cors({
-  origin: "*", // Change to your React app's URL for better security
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-app.use(express.json());
 
-app.use("/location", locationRoutes);
-app.use("/trips", require("./routes/locationRoutes"));
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
 
-module.exports = app;
+// Routes
+app.use('/api', locationRoutes);
 
-
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://192.168.1.4:${PORT}`);
+});
