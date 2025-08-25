@@ -21,10 +21,14 @@ exports.startTrip = async (req, res) => {
     await trip.save();
 
     // Set driver status online
-await User.findOneAndUpdate(
-  { driver_id },        // search by string field
-  { status: "online" }, // update
-  { new: true }         // return updated doc
+  await User.findOneAndUpdate(
+  { driver_id },           // find by driver_id
+  { 
+    status: "online",      // update status
+    lat: 33.6844,          // update latitude
+    lng: 73.0479           // update longitude
+  },
+  { new: true }            // return the updated document
 );
     res.status(201).json({ success: true, trip });
   } catch (err) {
@@ -55,10 +59,14 @@ exports.closeTrip = async (req, res) => {
     }
 
     // Set driver status offline
-await User.findOneAndUpdate(
-  { driver_id },        // search by string field
-  { status: "offline" }, // update
-  { new: true }         // return updated doc
+ await User.findOneAndUpdate(
+  { driver_id },           // find by driver_id
+  { 
+    status: "online",      // update status
+    lat: 33.6844,          // update latitude
+    lng: 73.0479           // update longitude
+  },
+  { new: true }            // return the updated document
 );
     res.json({ success: true, message: `Closed ${result.modifiedCount} trip(s)`, result });
   } catch (err) {
@@ -123,6 +131,24 @@ exports.getTripsByDate = async (req, res) => {
     }).populate("driver_id");
 
     res.json({ success: true, trips });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+exports.getUsers = async (req, res) => {
+  try {
+    const { status } = req.query; // optional: filter by status
+
+    const filter = {};
+    if (status) {
+      filter.status = status; // only online/offline users if provided
+    }
+
+    const users = await User.find(filter).sort({ updatedAt: -1 });
+
+    res.json({ success: true, users });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
