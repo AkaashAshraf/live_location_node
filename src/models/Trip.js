@@ -1,10 +1,17 @@
-const mongoose = require('mongoose');
+// models/Trip.js
+const mongoose = require("mongoose");
+
+const locationSchema = new mongoose.Schema({
+  lat: { type: Number, required: true },
+  long: { type: Number, required: true },
+  created_at: { type: Date, required: true }
+});
 
 const tripSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date },
-  status: { type: String, enum: ['ongoing', 'completed', 'cancelled'], default: 'ongoing' },
-}, { timestamps: true });
+  dateTime: { type: Date, required: true },
+  status: { type: String, default: "open", enum: ["open", "closed"] },
+  driverID: { type: String, required: true },
+  locations: [locationSchema]
+});
 
-module.exports = mongoose.model('Trip', tripSchema);
+module.exports = mongoose.model("Trip", tripSchema);

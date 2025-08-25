@@ -10,10 +10,11 @@ app.use(express.json());
 
 // Import routes
 const locationRoutes = require('./routes/locationRoutes');
+const tripRoutes = require("./routes/tripRoutes");
 
 // Use routes
 app.use('/api/locations', locationRoutes);
-
+app.use("/api/trips", tripRoutes);
 // Default route
 app.get('/', (req, res) => {
   res.send('🚀 Server is running...');
