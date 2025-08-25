@@ -8,9 +8,9 @@ const locationSchema = new mongoose.Schema({
 });
 
 const tripSchema = new mongoose.Schema({
-  dateTime: { type: Date, required: true },
+  date_time: { type: Date, required: true },
   status: { type: String, default: "open", enum: ["open", "closed"] },
-  driverID: { type: String, required: true },
+  driver_id: { type: String, required: true },
   locations: [locationSchema]
 });
 

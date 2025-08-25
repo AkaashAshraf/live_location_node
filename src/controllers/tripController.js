@@ -2,27 +2,37 @@
 const Trip = require("../models/Trip");
 const User = require("../models/User");
 
-
-// Start a new trip
+// -------------------- Start Trip --------------------
 exports.startTrip = async (req, res) => {
   try {
     const { date_time, driver_id, lat, long } = req.body;
 
+    if (!date_time || !driver_id || lat === undefined || long === undefined) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
     const trip = new Trip({
       date_time,
       driver_id,
-      locations: [{ lat, long, created_at:date_time }]
+      status: "open",
+      locations: [{ lat, long, created_at: new Date() }]
     });
 
     await trip.save();
-    await User.findByIdAndUpdate(date_time, { status: "online" });
 
+    // Set driver status online
+await User.findOneAndUpdate(
+  { driver_id },        // search by string field
+  { status: "online" }, // update
+  { new: true }         // return updated doc
+);
     res.status(201).json({ success: true, trip });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-// Close all trips for a driver on a specific date
+
+// -------------------- Close Trip --------------------
 exports.closeTrip = async (req, res) => {
   try {
     const { driver_id, date } = req.body;
@@ -35,51 +45,57 @@ exports.closeTrip = async (req, res) => {
     const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
     const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
 
-    // Update all open trips
     const result = await Trip.updateMany(
-      {
-        driverID: driver_id,
-        status: "open",
-        dateTime: { $gte: startOfDay, $lte: endOfDay }
-      },
+      { driver_id, status: "open", date_time: { $gte: startOfDay, $lte: endOfDay } },
       { $set: { status: "closed" } }
     );
 
-    if (result.modifiedCount === 0) {
+    if (!result || result.modifiedCount === 0) {
       return res.status(404).json({ success: false, message: "No open trips found to close" });
     }
-    await User.findByIdAndUpdate(driver_id, { status: "offline" });
 
-    res.json({ success: true, message: "Trips closed successfully", result });
+    // Set driver status offline
+await User.findOneAndUpdate(
+  { driver_id },        // search by string field
+  { status: "offline" }, // update
+  { new: true }         // return updated doc
+);
+    res.json({ success: true, message: `Closed ${result.modifiedCount} trip(s)`, result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-
-// Add location to ongoing trip
+// -------------------- Add Location --------------------
 exports.addLocation = async (req, res) => {
   try {
     const { lat, long, created_at, driver_id } = req.body;
 
-    // Find today's last open trip for this driver
-    const startOfDay = new Date(created_at);
-    startOfDay.setHours(0, 0, 0, 0);
+    if (!lat || !long || !created_at || !driver_id) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
 
-    const endOfDay = new Date(created_at);
+    const createdAt = new Date(created_at);
+    if (isNaN(createdAt)) {
+      return res.status(400).json({ success: false, message: "Invalid created_at date" });
+    }
+
+    const startOfDay = new Date(createdAt);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(createdAt);
     endOfDay.setHours(23, 59, 59, 999);
 
     const trip = await Trip.findOne({
-      driverID: driver_id,
+      driver_id,
       status: "open",
-      dateTime: { $gte: startOfDay, $lte: endOfDay }
-    }).sort({ dateTime: -1 });
+      date_time: { $gte: startOfDay, $lte: endOfDay }
+    }).sort({ date_time: -1 });
 
     if (!trip) {
-      return res.status(404).json({ success: false, message: "No open trip found for this driver on the given date" });
+      return res.status(404).json({ success: false, message: "No open trip found for this driver today" });
     }
 
-    trip.locations.push({ lat, long, created_at });
+    trip.locations.push({ lat, long, created_at: createdAt });
     await trip.save();
 
     res.json({ success: true, trip });
@@ -88,19 +104,23 @@ exports.addLocation = async (req, res) => {
   }
 };
 
-// Get trips for driver on selected date
+// -------------------- Get Trips By Date --------------------
 exports.getTripsByDate = async (req, res) => {
   try {
     const { driver_id, date } = req.query;
+
+    if (!driver_id || !date) {
+      return res.status(400).json({ success: false, message: "driver_id and date are required" });
+    }
 
     const selectedDate = new Date(date);
     const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
     const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
 
     const trips = await Trip.find({
-      driverID: driver_id,
-      dateTime: { $gte: startOfDay, $lte: endOfDay }
-    }).populate("driverID");
+      driver_id,
+      date_time: { $gte: startOfDay, $lte: endOfDay }
+    }).populate("driver_id");
 
     res.json({ success: true, trips });
   } catch (err) {
