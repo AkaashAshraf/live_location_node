@@ -25,8 +25,8 @@ exports.startTrip = async (req, res) => {
   { driver_id }, // search for driver_id
   { 
     status: "online", 
-    lat: 33.6844, 
-    lng: 73.0479 
+    lat: lat, 
+    lng: long
   },
   { 
     new: true,   // return the updated or newly created document
@@ -67,13 +67,12 @@ exports.closeTrip = async (req, res) => {
 const updatedDriver = await User.findOneAndUpdate(
   { driver_id }, // search for driver_id
   { 
-    status: "online", 
-    lat: 33.6844, 
-    lng: 73.0479 
+    status: "offline", 
+   
   },
   { 
     new: true,   // return the updated or newly created document
-    upsert: true // create a new document if it doesn't exist
+    // upsert: true // create a new document if it doesn't exist
   }
 );
 
@@ -97,7 +96,18 @@ exports.addLocation = async (req, res) => {
     if (isNaN(createdAt)) {
       return res.status(400).json({ success: false, message: "Invalid created_at date" });
     }
-
+  await User.findOneAndUpdate(
+  { driver_id }, // search for driver_id
+  { 
+    status: "online", 
+    lat: lat, 
+    lng: long
+  },
+  { 
+    new: true,   // return the updated or newly created document
+    upsert: true // create a new document if it doesn't exist
+  }
+);
     const startOfDay = new Date(createdAt);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(createdAt);
