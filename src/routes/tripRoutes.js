@@ -16,6 +16,6 @@ router.get("/", tripController.getTripsByDate);
 router.post("/close", tripController.closeTrip);
 
 // Get users
-router.get("/get-users", userController.getUsers); // ✅ use userController here
+router.get("/get-users", tripController.getTripsByDate); // ✅ use userController here
 
 module.exports = router;
