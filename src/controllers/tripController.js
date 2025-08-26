@@ -60,13 +60,16 @@ exports.closeTrip = async (req, res) => {
 
     // Set driver status offline
  await User.findOneAndUpdate(
-  { driver_id },           // find by driver_id
+  { driver_id }, // search for driver_id
   { 
-    status: "online",      // update status
-    lat: 33.6844,          // update latitude
-    lng: 73.0479           // update longitude
+    status: "online", 
+    lat: 33.6844, 
+    lng: 73.0479 
   },
-  { new: true }            // return the updated document
+  { 
+    new: true,   // return the updated or newly created document
+    upsert: true // create a new document if it doesn't exist
+  }
 );
     res.json({ success: true, message: `Closed ${result.modifiedCount} trip(s)`, result });
   } catch (err) {
