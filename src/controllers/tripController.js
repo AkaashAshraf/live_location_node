@@ -33,7 +33,8 @@ exports.startTrip = async (req, res) => {
     upsert: true // create a new document if it doesn't exist
   }
 );
-
+ const io = req.app.get("io");
+    io.emit("driverUpdated", updatedDriver);
 console.log("Driver updated or created:", updatedDriver);
     res.status(201).json({ success: true, trip });
   } catch (err) {
@@ -75,7 +76,8 @@ const updatedDriver = await User.findOneAndUpdate(
     // upsert: true // create a new document if it doesn't exist
   }
 );
-
+ const io = req.app.get("io");
+    io.emit("driverUpdated", updatedDriver);
 console.log("Driver updated or created:", updatedDriver);
     res.json({ success: true, message: `Closed ${result.modifiedCount} trip(s)`, result });
   } catch (err) {
@@ -108,6 +110,7 @@ exports.addLocation = async (req, res) => {
     upsert: true // create a new document if it doesn't exist
   }
 );
+
     const startOfDay = new Date(createdAt);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(createdAt);
