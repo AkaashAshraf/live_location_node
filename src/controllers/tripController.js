@@ -21,15 +21,20 @@ exports.startTrip = async (req, res) => {
     await trip.save();
 
     // Set driver status online
-  await User.findOneAndUpdate(
-  { driver_id },           // find by driver_id
+ const updatedDriver = await User.findOneAndUpdate(
+  { driver_id }, // search for driver_id
   { 
-    status: "online",      // update status
-    lat: 33.6844,          // update latitude
-    lng: 73.0479           // update longitude
+    status: "online", 
+    lat: 33.6844, 
+    lng: 73.0479 
   },
-  { new: true }            // return the updated document
+  { 
+    new: true,   // return the updated or newly created document
+    upsert: true // create a new document if it doesn't exist
+  }
 );
+
+console.log("Driver updated or created:", updatedDriver);
     res.status(201).json({ success: true, trip });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
