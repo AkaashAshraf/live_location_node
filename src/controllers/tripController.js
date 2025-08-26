@@ -59,7 +59,7 @@ exports.closeTrip = async (req, res) => {
     }
 
     // Set driver status offline
- await User.findOneAndUpdate(
+const updatedDriver = await User.findOneAndUpdate(
   { driver_id }, // search for driver_id
   { 
     status: "online", 
@@ -71,6 +71,8 @@ exports.closeTrip = async (req, res) => {
     upsert: true // create a new document if it doesn't exist
   }
 );
+
+console.log("Driver updated or created:", updatedDriver);
     res.json({ success: true, message: `Closed ${result.modifiedCount} trip(s)`, result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
