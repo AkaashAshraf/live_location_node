@@ -61,6 +61,18 @@ exports.startTrip = async (req, res) => {
       branch_name,
       locations: [{ lat, long, created_at: new Date() }]
     });
+     const updatedDriver = await User.findOneAndUpdate(
+  { driver_id }, // search for driver_id
+  { 
+    status: "online", 
+    lat: lat, 
+    lng: long
+  },
+  { 
+    new: true,   // return the updated or newly created document
+    upsert: true // create a new document if it doesn't exist
+  }
+);
 
     await trip.save();
 
