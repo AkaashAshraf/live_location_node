@@ -66,7 +66,10 @@ exports.startTrip = async (req, res) => {
   { 
     status: "online", 
     lat: lat, 
-    lng: long
+    lng: long,
+    branch_id:branch_id,
+    branch_name:branch_name
+
   },
   { 
     new: true,   // return the updated or newly created document

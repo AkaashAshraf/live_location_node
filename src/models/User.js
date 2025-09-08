@@ -5,6 +5,8 @@ const userSchema = new mongoose.Schema({
   status: { type: String, enum: ['online', 'offline'], default: 'offline' },
   lat: { type: Number, default: 0 },   // latitude
   lng: { type: Number, default: 0 },   // longitude
+    branch_id: { type: String, required: false },
+branch_name: { type: String, required: false },
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
